@@ -25,7 +25,7 @@ public class Transaction
         Console.WriteLine($"Transaction ID : {TransactionId}");
         Console.WriteLine($"Type : {Type}");
         Console.WriteLine($"Amount : {Amount:C}");
-        Console.WriteLine($"Date : {Date:dd MMM yyyy HH:mm}");
+        Console.WriteLine($"Date : {Date:dd/MM/yyyy HH:mm}");
         Console.WriteLine($"Description : {Description}");
         Console.WriteLine($"Account : {AccountNumber}");
     }
