@@ -22,11 +22,11 @@ class Program
 
         var mattCreditTnx = new Transaction(
             IdGenerator.GenerateTransactionId(),
-            "Credit",
+            TransactionType.Credit,
             2000,
             "Birthday Gift",
             mattAccount.AccountNumber);
-        bank.RecordTransaction(mattCreditTnx);
+        
 
         var customerDami = new Customer(
             IdGenerator.GenerateCustomerId(),
@@ -45,28 +45,26 @@ class Program
 
         var damiCreditTnx = new Transaction(
             IdGenerator.GenerateTransactionId(),
-            "Credit",
+            TransactionType.Credit,
             9000,
             "Allowance",
             damiAccount.AccountNumber);
-        bank.RecordTransaction(damiCreditTnx);
 
-        mattAccount.Deposit(mattCreditTnx.Amount);
-        damiAccount.Deposit(damiCreditTnx.Amount);
+
+        mattAccount.ProcessTransaction(mattCreditTnx);
+        damiAccount.ProcessTransaction(damiCreditTnx);
 
         var mattDebitTnxAction = new Transaction(
             IdGenerator.GenerateTransactionId(),
-            "Debit",
+            TransactionType.Debit,
             500,
             "Internet bill",
             mattAccount.AccountNumber);
-        bank.RecordTransaction(mattDebitTnxAction);
+        mattAccount.ProcessTransaction(mattDebitTnxAction);
 
         Console.WriteLine("\n");
-        bank.GetAllCustomers();
+        mattAccount.GetTransactionHistory();
         Console.WriteLine("\n");
-        bank.GetAllAccounts();
-        Console.WriteLine("\n");
-        bank.GetAllTransactions();
+        damiAccount.GetTransactionHistory();
     }
 }

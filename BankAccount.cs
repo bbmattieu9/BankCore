@@ -10,6 +10,7 @@ public class BankAccount
     public Customer Owner { get; private set; }
 
     private readonly Logger _logger;
+    private readonly List<Transaction> _transactions;
 
     public BankAccount(string accountNumber, string accountType, Customer owner)
     {
@@ -20,6 +21,7 @@ public class BankAccount
         this.IsActive = true;
         this.Owner = owner;
 
+        _transactions = new List<Transaction>();
         _logger = new Logger();
         _logger.Log($"Account {AccountNumber} opened for {Owner.GetFullName()}");
     }
@@ -66,5 +68,42 @@ public class BankAccount
         Console.WriteLine($"Balance      : {Balance:C}");
         Console.WriteLine($"Date Opened  : {DateOpened.ToShortDateString()}");
         Console.WriteLine($"Status       : {(IsActive ? "Active" : "Inactive")}");
+    }
+
+    public void ProcessTransaction(Transaction transaction)
+    {
+        if (transaction.Type == TransactionType.Credit)
+        {
+            Deposit(transaction.Amount);
+        }
+        else if (transaction.Type == TransactionType.Debit)
+        {
+            Withdraw(transaction.Amount);
+        }
+        else
+        {
+            _logger.LogError($"Unknown transaction type: {transaction.Type}");
+            return;
+        }
+
+        _transactions.Add(transaction);
+        _logger.Log($"Transaction {transaction.TransactionId} recorded on account {AccountNumber}");
+    }
+    
+    public void GetTransactionHistory()
+    {
+        Console.WriteLine($"===== TRANSACTION HISTORY: {AccountNumber} =====");
+        if (_transactions.Count == 0)
+        {
+            Console.WriteLine("No transactions found.");
+        }
+        else
+        {
+            foreach (var transaction in _transactions)
+            {
+                transaction.GetTransactionDetails();
+            }
+        }
+        Console.WriteLine("==============================================");
     }
 }
