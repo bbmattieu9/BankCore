@@ -15,10 +15,12 @@ class Program
             "bbmattieu9@gmail.com",
             "07042020381");
 
-        var mattAccount = new BankAccount(
+        var mattAccount = new CurrentAccount(
             IdGenerator.GenerateAccountNumber(),
-            "Current",
-            customerMatt);
+            customerMatt,
+            50000m
+        );
+
 
         var mattCreditTnx = new Transaction(
             IdGenerator.GenerateTransactionId(),
@@ -26,7 +28,7 @@ class Program
             2000,
             "Birthday Gift",
             mattAccount.AccountNumber);
-        
+
 
         var customerDami = new Customer(
             IdGenerator.GenerateCustomerId(),
@@ -38,7 +40,17 @@ class Program
         bank.AddCustomer(customerMatt);
         bank.AddCustomer(customerDami);
 
-        var damiAccount = new BankAccount(IdGenerator.GenerateAccountNumber(), "Savings", customerDami);
+        var damiAccount = new SavingsAccount(
+            IdGenerator.GenerateAccountNumber(),
+            customerDami);
+
+        var damiOverdrawTnx = new Transaction(
+            IdGenerator.GenerateTransactionId(),
+            TransactionType.Debit,
+            8500,
+            "ATM Withdrawal",
+            damiAccount.AccountNumber);
+        damiAccount.ProcessTransaction(damiOverdrawTnx);
 
         bank.AddAccount(mattAccount);
         bank.AddAccount(damiAccount);
@@ -54,13 +66,21 @@ class Program
         mattAccount.ProcessTransaction(mattCreditTnx);
         damiAccount.ProcessTransaction(damiCreditTnx);
 
-        var mattDebitTnxAction = new Transaction(
+        // var mattDebitTnxAction = new Transaction(
+        //     IdGenerator.GenerateTransactionId(),
+        //     TransactionType.Debit,
+        //     500,
+        //     "Internet bill",
+        //     mattAccount.AccountNumber);
+        // mattAccount.ProcessTransaction(mattDebitTnxAction);
+        
+        var mattOverdraftTnx = new Transaction(
             IdGenerator.GenerateTransactionId(),
             TransactionType.Debit,
-            500,
-            "Internet bill",
+            2400,
+            "Overdraft test",
             mattAccount.AccountNumber);
-        mattAccount.ProcessTransaction(mattDebitTnxAction);
+        mattAccount.ProcessTransaction(mattOverdraftTnx);
 
         Console.WriteLine("\n");
         mattAccount.GetTransactionHistory();

@@ -2,17 +2,17 @@ namespace BankCore;
 
 public class BankAccount
 {
-    public decimal Balance { get; private set; }
+    public decimal Balance { get; protected set; }
     public string AccountNumber { get; private set; }
-    public string AccountType { get; private set; }
+    public AccountType AccountType { get; private set; }
     public DateTime DateOpened { get; private set; }
     public bool IsActive { get; private set; }
     public Customer Owner { get; private set; }
 
-    private readonly Logger _logger;
+    protected readonly Logger _logger;
     private readonly List<Transaction> _transactions;
 
-    public BankAccount(string accountNumber, string accountType, Customer owner)
+    public BankAccount(string accountNumber, AccountType accountType, Customer owner)
     {
         this.Balance = 0;
         this.AccountNumber = accountNumber;
@@ -27,37 +27,37 @@ public class BankAccount
     }
 
 
-    public void Deposit(decimal amount)
+    public bool Deposit(decimal amount)
     {
         if (amount <= 0)
         {
-            _logger.LogError($"Deposit amount must be greater than zero");
-            return;
+            _logger.LogError("Deposit amount must be greater than zero.");
+            return false;
         }
-        else
-        {
-            this.Balance += amount;
-            _logger.LogSuccess($"Deposit of {amount:C} successful. New balance: {Balance:C}");
-        }
+
+        Balance += amount;
+        _logger.LogSuccess($"Deposit of {amount:C} successful. New balance: {Balance:C}");
+        return true;
     }
 
-    public void Withdraw(decimal amount)
+
+    public virtual bool Withdraw(decimal amount)
     {
         if (amount <= 0)
         {
-            _logger.LogError($"Withdrawal amount must be greater than zero");
-            return;
+            _logger.LogError("Withdrawal amount must be greater than zero.");
+            return false;
         }
 
-        if (amount > this.Balance)
+        if (amount > Balance)
         {
             _logger.LogError("Insufficient funds.");
+            return false;
         }
-        else
-        {
-            this.Balance -= amount;
-            _logger.LogSuccess($"Withdrawal of {amount:C} successful. New balance: {Balance:C}");
-        }
+
+        Balance -= amount;
+        _logger.LogSuccess($"Withdrawal of {amount:C} successful. New balance: {Balance:C}");
+        return true;
     }
 
     public void GetAccountDetails()
@@ -72,24 +72,25 @@ public class BankAccount
 
     public void ProcessTransaction(Transaction transaction)
     {
+        bool success;
+
         if (transaction.Type == TransactionType.Credit)
-        {
-            Deposit(transaction.Amount);
-        }
+            success = Deposit(transaction.Amount);
         else if (transaction.Type == TransactionType.Debit)
-        {
-            Withdraw(transaction.Amount);
-        }
+            success = Withdraw(transaction.Amount);
         else
         {
             _logger.LogError($"Unknown transaction type: {transaction.Type}");
             return;
         }
 
-        _transactions.Add(transaction);
-        _logger.Log($"Transaction {transaction.TransactionId} recorded on account {AccountNumber}");
+        if (success)
+        {
+            _transactions.Add(transaction);
+            _logger.Log($"Transaction {transaction.TransactionId} recorded on account {AccountNumber}");
+        }
     }
-    
+
     public void GetTransactionHistory()
     {
         Console.WriteLine($"===== TRANSACTION HISTORY: {AccountNumber} =====");
@@ -104,6 +105,7 @@ public class BankAccount
                 transaction.GetTransactionDetails();
             }
         }
+
         Console.WriteLine("==============================================");
     }
 }
